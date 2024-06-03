@@ -10,18 +10,19 @@ namespace Arselon.Cdt.Hex
             while (true)
             {
                 hexReader.ReadUntil(':');
-
                 var byteCount = hexReader.ReadByte();
                 var address = hexReader.ReadUInt16();
                 var recordType = hexReader.ReadByte();
                 var data = hexReader.ReadBytes(byteCount);
                 var crc = hexReader.ReadByte();
+                
                 var crcCalculated = (int)byteCount + (address >> 8) + (address & 0xff) + recordType;
                 foreach (var b in data)
                     crcCalculated += b;
                 crcCalculated = ((crcCalculated ^ 0xFF) + 1) & 0xFF;
                 if (crc != crcCalculated)
                     throw new InvalidDataException($"CRC does not match, expected {crcCalculated}, read {crc}");
+
                 hexReader.ReadEol();
             }
         }

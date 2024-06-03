@@ -10,6 +10,7 @@ namespace Arselon.Cdt.Hex
     public class HexReader
     {
         private TextReader _reader;
+        private int? _cache;
         private int _current;
         private int _lineNumber;
         private int _columnNumber;
@@ -29,13 +30,7 @@ namespace Arselon.Cdt.Hex
                 var i = Read();
                 if (i < 0)
                     return;
-                if (i < ' ')
-                    ThrowInvalidData();
-
-                char rc = (char)i;
-                if (rc == '\n')
-                    ThrowInvalidData();
-                if (rc == c)
+                if (i == c)
                     return;
             }
         }
@@ -57,12 +52,9 @@ namespace Arselon.Cdt.Hex
             var c = ReadChar();
             if (c == '\r')
             {
-                var nl = Peek();
-                if ((nl > 0) && ((char)nl == '\n'))
-                {
+                if (Peek() == '\n')
                     Read();
-                    return;
-                }
+                return;
             }
             ThrowInvalidData();
         }
@@ -90,17 +82,14 @@ namespace Arselon.Cdt.Hex
 
         public int Read()
         {
-            if (_current > 0)
+            if (_current == '\r')
             {
-                if (_current == '\r')
-                {
-                    _lineNumber++;
-                    _columnNumber = 0;
-                }
-                else
-                    if (_current >= ' ')
-                        _columnNumber++;
+                _lineNumber++;
+                _columnNumber = 0;
             }
+            else
+                if (_current >= ' ')
+                    _columnNumber++;
             _current = ReadOne();
             return _current;
         }
@@ -124,7 +113,7 @@ namespace Arselon.Cdt.Hex
 
         private void ThrowInvalidData()
         {
-
+            throw new InvalidDataException($"Invalid data at {_lineNumber}:{_columnNumber}");
         }
 
         public byte[] ReadBytes(int byteCount)
