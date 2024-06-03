@@ -6,10 +6,14 @@ namespace Arselon.Cdt.Hex
     {
         public static void Parse(TextReader textReader, IBinaryMap map)
         {
+            long baseAddress = 0;
             var hexReader = new HexReader(textReader);
             while (true)
             {
                 hexReader.ReadUntil(':');
+                var linenumber = hexReader.LineNumber;
+                var columnNumber = hexReader.ColumnNumber;
+
                 var byteCount = hexReader.ReadByte();
                 var address = hexReader.ReadUInt16();
                 var recordType = hexReader.ReadByte();
@@ -22,8 +26,26 @@ namespace Arselon.Cdt.Hex
                 crcCalculated = ((crcCalculated ^ 0xFF) + 1) & 0xFF;
                 if (crc != crcCalculated)
                     throw new InvalidDataException($"CRC does not match, expected {crcCalculated}, read {crc}");
-
                 hexReader.ReadEol();
+
+                switch (recordType)
+                {
+                    case 0:
+                        // data
+                        map.AddData(baseAddress + address, data);
+                        break;
+
+                    case 1:
+                        // eof
+                        return;
+
+                    case 2:
+                        // extended segment address
+                        if (byteCount != 2)
+                            throw new InvalidDataException($"Invalid address record at {linenumber}:{columnNumber}");
+                        baseAddress = BitConverter.ToInt16(data, 0) * 16;
+                        break;
+                }
             }
         }
 

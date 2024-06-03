@@ -8,7 +8,7 @@ namespace Arselon.Cdt.Hex
 {
     public class BinaryMap : IBinaryMap
     {
-        public void AddData(uint address, byte[] data)
+        public void AddData(long address, byte[] data)
         {
         }
     }

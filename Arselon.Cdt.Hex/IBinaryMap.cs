@@ -8,6 +8,6 @@ namespace Arselon.Cdt.Hex
 {
     public interface IBinaryMap
     {
-        void AddData(uint address, byte[] data);
+        void AddData(long address, byte[] data);
     }
 }

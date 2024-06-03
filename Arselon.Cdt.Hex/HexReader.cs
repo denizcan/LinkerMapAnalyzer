@@ -15,6 +15,9 @@ namespace Arselon.Cdt.Hex
         private int _lineNumber;
         private int _columnNumber;
 
+        public int LineNumber => _lineNumber;
+        public int ColumnNumber => _columnNumber;
+
         public HexReader(TextReader reader)
         {
             _reader = reader;
