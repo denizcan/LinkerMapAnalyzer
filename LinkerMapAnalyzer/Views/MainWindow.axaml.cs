@@ -18,6 +18,7 @@ namespace LinkerMapAnalyzer.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+            this.AttachDevTools();
         }
 
         private int count = 0;
